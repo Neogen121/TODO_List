@@ -104,10 +104,15 @@ export default {
             this.tasks[data.index].checked = data.value;
         },
 
+        saveToLS() {
+            localStorage.setItem("tasks", JSON.stringify(this.tasks));
+        },
+
         setDefaultTasks() {
             this.tasks = defaultTasks;
-            localStorage.setItem("tasks", JSON.stringify(defaultTasks));
+            this.saveToLS();
         },
+
         assignIDs() {
             let id = 0;
             this.tasks.forEach((task) => {
@@ -134,6 +139,14 @@ export default {
         };
 
         tryRestoreTasks();
+    },
+    watch: {
+        tasks: {
+            deep: true,
+            handler() {
+                this.saveToLS();
+            },
+        },
     },
 };
 </script>
