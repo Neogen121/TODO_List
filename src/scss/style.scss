@@ -1,0 +1,11 @@
+@font-face {
+    font-family: "Roboto";
+    src: url("../fonts/Roboto-Bold.ttf");
+    src: url("../fonts/Roboto-Regular.ttf");
+}
+
+@import "./blocks/body.scss";
+@import "./blocks/html.scss";
+@import "./blocks/tasks-list.scss";
+@import "./blocks/task.scss";
+@import "./blocks/header.scss";

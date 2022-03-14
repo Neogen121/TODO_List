@@ -1,0 +1,13 @@
+.body {
+    padding: 0;
+    margin: 0;
+    overscroll-behavior-y: none;
+
+    &__wrap {
+        position: relative;
+        width: 500px;
+        max-width: 98%;
+        height: 100vh;
+        margin: auto;
+    }
+}
