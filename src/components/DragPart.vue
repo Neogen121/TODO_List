@@ -30,6 +30,9 @@ export default {
             return this.$store.getters.TASKS.length;
         },
         draggedIndex: {
+            get() {
+                return this.$store.getters.DRAGGED_INDEX;
+            },
             set(newVal) {
                 this.$store.dispatch("SET_DRAGGED_INDEX", newVal);
             },

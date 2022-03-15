@@ -21,8 +21,9 @@ const mutations = {
     },
 
     REMOVE_TASKS: (state) => {
+        console.log(state.selectedIndexes);
         for (let i = state.selectedIndexes.length - 1; i >= 0; i--) {
-            state.tasks.splice(state.selectedIndexes[i], 1);
+            state.tasks.splice(state.selectedIndexes.sort()[i], 1);
         }
         state.selectedIndexes = [];
     },
