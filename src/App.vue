@@ -14,19 +14,7 @@
             </div>
         </div>
         <div class="tasks-list">
-            <TaskContainer
-                v-for="(task, index) in tasks"
-                :key="task.id"
-                v-bind="task"
-                :index="index"
-                :max="tasks.length"
-                :selectedindexes="selectedIndexes"
-                @taskchange="taskChange"
-                @orderchange="orderChange"
-                @selectionstarted="selectionStarted"
-                @toggleselection="toggleSelection"
-                @togglechecked="toggleChecked"
-            ></TaskContainer>
+            <TaskContainer v-for="(task, index) in tasks" :key="task.id" :index="index"></TaskContainer>
         </div>
     </div>
 </template>
@@ -34,32 +22,32 @@
 <script>
 import TaskContainer from "./components/TaskContainer.vue";
 import { TaskClass } from "./js/classes";
-import { defaultTasks } from "./js/defaultTasks";
 
 export default {
     name: "App",
-    components: {
-        TaskContainer,
-    },
+    components: { TaskContainer },
+
     data() {
-        return {
-            tasks: [],
-            selectedIndexes: [],
-        };
+        return {};
+    },
+
+    computed: {
+        tasks() {
+            return this.$store.getters.TASKS;
+        },
+
+        selectedIndexes() {
+            return this.$store.getters.SELECTED_INDEXES;
+        },
     },
     methods: {
         addTask() {
-            this.tasks.push(new TaskClass("Name", "Description"));
-            this.assignIDs();
+            this.$store.dispatch("ADD_TASK", new TaskClass("Name", "Description"));
         },
 
         removeTasks() {
             if (confirm("Do you really want to delete?")) {
-                for (let i = this.selectedIndexes.length - 1; i >= 0; i--) {
-                    this.tasks.splice(this.selectedIndexes[i], 1);
-                }
-                this.selectedIndexes = [];
-                this.assignIDs();
+                this.$store.dispatch("REMOVE_TASKS");
             }
         },
 
@@ -73,10 +61,6 @@ export default {
             alert(info);
         },
 
-        taskChange(data) {
-            this.tasks[data.index][data.name] = data.value;
-        },
-
         orderChange(data) {
             let directionSign = data.toDown ? 1 : -1;
             var task = this.tasks[data.index];
@@ -84,69 +68,12 @@ export default {
             this.tasks.splice(data.index + directionSign, 0, task);
         },
 
-        selectionStarted(data) {
-            this.selectedIndexes = [data.index];
-        },
-
-        toggleSelection(data) {
-            if (data.value) {
-                this.selectedIndexes.push(data.index);
-                this.selectedIndexes = [...this.selectedIndexes];
-            } else {
-                let indexOfIndex = this.selectedIndexes.indexOf(data.index);
-                this.selectedIndexes.splice(indexOfIndex, 1);
-                this.selectedIndexes = [...this.selectedIndexes];
-            }
-            //this.selectedIndexes = [data.index];
-        },
-
-        toggleChecked(data) {
-            this.tasks[data.index].checked = data.value;
-        },
-
-        saveToLS() {
-            localStorage.setItem("tasks", JSON.stringify(this.tasks));
-        },
-
         setDefaultTasks() {
-            this.tasks = defaultTasks;
-            this.saveToLS();
-        },
-
-        assignIDs() {
-            let id = 0;
-            this.tasks.forEach((task) => {
-                task.id = id++;
-            });
+            this.$store.dispatch("SET_DEFAULT_TASKS");
         },
     },
-    created() {
-        let tryRestoreTasks = () => {
-            if (checkTasksInLS()) {
-                loadTasksFromLS();
-            } else {
-                this.setDefaultTasks();
-            }
-            this.assignIDs();
-        };
-
-        let checkTasksInLS = () => {
-            return localStorage.getItem("tasks") !== null;
-        };
-
-        let loadTasksFromLS = () => {
-            this.tasks = JSON.parse(localStorage.getItem("tasks"));
-        };
-
-        tryRestoreTasks();
-    },
-    watch: {
-        tasks: {
-            deep: true,
-            handler() {
-                this.saveToLS();
-            },
-        },
+    mounted() {
+        this.$store.dispatch("TRY_LOAD_TASKS");
     },
 };
 </script>

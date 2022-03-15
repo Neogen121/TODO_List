@@ -1,30 +1,23 @@
 <template>
-    <div @click="toggleChecked">
-        <img class="task__checkmark" src="../assets/ui/checkmark-outlined.svg" v-show="!checkedThis" />
-        <img class="task__checkmark" src="../assets/ui/checkmark-filled.svg" v-show="checkedThis" />
+    <div @click="checked = !checked">
+        <img class="task__checkmark" src="../assets/ui/checkmark-outlined.svg" v-show="!checked" />
+        <img class="task__checkmark" src="../assets/ui/checkmark-filled.svg" v-show="checked" />
     </div>
 </template>
 
 <script>
 export default {
     name: "CheckBox",
-    props: ["index", "checked"],
-    data() {
-        return {
-            checkedThis: this.checked,
-        };
-    },
-    methods: {
-        toggleChecked() {
-            this.emitToggleChecked();
-        },
-        emitToggleChecked() {
-            this.$emit("togglechecked", { index: this.index, value: !this.checked });
-        },
-    },
-    watch: {
-        checked(newVal) {
-            this.checkedThis = newVal;
+    props: ["index"],
+
+    computed: {
+        checked: {
+            get() {
+                return this.$store.getters.TASKS[this.index].checked;
+            },
+            set(newVal) {
+                this.$store.dispatch("SET_TASK_PROPERTY", { index: this.index, field: "checked", value: newVal });
+            },
         },
     },
 };

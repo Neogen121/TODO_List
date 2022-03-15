@@ -1,20 +1,35 @@
 <template>
-    <div @dblclick.prevent="startEdit()">
+    <div :class="'task__' + field + (checked ? ' task__' + field + '--checked' : '')" @dblclick.prevent="startEdit()">
         <span v-show="!valueEdited">{{ value }}</span>
-        <input class="task__input" v-show="valueEdited" v-model="valueThis" @blur="stopEdit" ref="valueInput" />
+        <input class="task__input" v-show="valueEdited" v-model="value" @blur="stopEdit" ref="valueInput" />
     </div>
 </template>
 
 <script>
 export default {
     name: "ShowEditSwitchable",
-    props: ["name", "value", "index"],
+    props: ["index", "field"],
     data() {
         return {
             valueEdited: false,
-            valueThis: this.value,
         };
     },
+
+    computed: {
+        value: {
+            get() {
+                return this.$store.getters.TASKS[this.index][this.field];
+            },
+            set(newVal) {
+                this.$store.dispatch("SET_TASK_PROPERTY", { index: this.index, field: this.field, value: newVal });
+            },
+        },
+
+        checked() {
+            return this.$store.getters.TASKS[this.index].checked;
+        },
+    },
+
     methods: {
         startEdit() {
             this.valueEdited = true;
@@ -25,16 +40,6 @@ export default {
 
         stopEdit() {
             this.valueEdited = false;
-            this.emitTaskChange();
-        },
-
-        emitTaskChange() {
-            this.$emit("taskchange", { index: this.index, name: this.name, value: this.valueThis });
-        },
-    },
-    watch: {
-        value(newVal) {
-            this.valueThis = newVal;
         },
     },
 };
