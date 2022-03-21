@@ -1,11 +1,13 @@
 import { createStore } from "vuex";
-import drag from "./drag";
-import tasks from "./tasks";
+import drag from "@/store/drag";
+import tasks from "@/store/tasks";
+import modal from "@/store/modal";
+import notification from "@/store/notification";
 
 export default createStore({
     state: {},
     getters: {},
     mutations: {},
     actions: {},
-    modules: { tasks, drag },
+    modules: { tasks, drag, modal, notification },
 });

@@ -1,7 +1,7 @@
 const state = {
     draggedIndex: -1,
     containerTop: 0,
-    containerHeight: 80,
+    containerHeight: 75,
 };
 
 const getters = {

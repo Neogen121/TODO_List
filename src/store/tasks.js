@@ -12,16 +12,25 @@ const getters = {
 };
 
 const mutations = {
-    SET_TASKS: (state, tasks) => {
-        state.tasks = tasks;
-    },
-
     ADD_TASK: (state, task) => {
         state.tasks.push(task);
     },
 
-    REMOVE_TASKS: (state) => {
-        console.log(state.selectedIndexes);
+    SET_TASKS: (state, tasks) => {
+        state.tasks = tasks;
+    },
+
+    SET_TASK: (state, data) => {
+        ["name", "description", "checked"].forEach((field) => {
+            state.tasks[data.index][field] = data.task[field];
+        });
+    },
+
+    REMOVE_TASK: (state, index) => {
+        state.tasks.splice(index, 1);
+    },
+
+    REMOVE_SELECTED_TASKS: (state) => {
         for (let i = state.selectedIndexes.length - 1; i >= 0; i--) {
             state.tasks.splice(state.selectedIndexes.sort()[i], 1);
         }
@@ -40,9 +49,20 @@ const mutations = {
         });
     },
 
-    SET_TASK_PROPERTY: (state, data) => {
-        state.tasks[data.index][data.field] = data.value;
-        state.tasks = [...state.tasks];
+    SET_CREATION_DATE: (state) => {
+        state.tasks[state.tasks.length - 1].creationDate = new Date().toISOString();
+    },
+
+    SET_EDITED_DATE: (state, data) => {
+        state.tasks[data.index].editedDate = new Date().toISOString();
+    },
+
+    SET_CHECKED_DATE: (state, data) => {
+        state.tasks[data.index].checkedDate = data.value ? new Date().toISOString() : "";
+    },
+
+    SET_CHECKED_STATE: (state, data) => {
+        state.tasks[data.index].checked = data.value;
     },
 
     TOGGLE_TASK_SELECTION: (state, index) => {
@@ -84,16 +104,18 @@ const actions = {
         context.dispatch("SAVE_TASKS");
     },
 
-    ADD_TASK: (context, task) => {
-        context.commit("ADD_TASK", task);
+    REMOVE_TASK: (context, index) => {
+        context.commit("REMOVE_TASK", index);
         context.commit("ASSIGN_IDS");
         context.dispatch("SAVE_TASKS");
+        context.dispatch("PUSH_NOTIFICATION", `Task #${index + 1} was removed`);
     },
 
-    REMOVE_TASKS: (context) => {
-        context.commit("REMOVE_TASKS");
+    REMOVE_SELECTED_TASKS: (context) => {
+        context.commit("REMOVE_SELECTED_TASKS");
         context.commit("ASSIGN_IDS");
         context.dispatch("SAVE_TASKS");
+        context.dispatch("PUSH_NOTIFICATION", `Selected Tasks were removed`);
     },
 
     CHANGE_ORDER: (context, data) => {
@@ -102,9 +124,25 @@ const actions = {
         context.dispatch("CHANGE_DRAGGED_INDEX", data.direction);
     },
 
-    SET_TASK_PROPERTY: (context, data) => {
-        context.commit("SET_TASK_PROPERTY", data);
+    TRY_SET_TASK: (context, data) => {
+        if (data.index > -1) {
+            context.commit("SET_TASK", data);
+            context.commit("SET_EDITED_DATE", data);
+            context.dispatch("PUSH_NOTIFICATION", `Task #${data.index + 1} is edited`);
+        } else {
+            context.commit("ADD_TASK", data.task);
+            context.commit("SET_CREATION_DATE");
+            context.dispatch("PUSH_NOTIFICATION", `New Task added`);
+        }
+        context.commit("ASSIGN_IDS");
         context.dispatch("SAVE_TASKS");
+    },
+
+    SET_CHECKED_STATE: (context, data) => {
+        context.commit("SET_CHECKED_STATE", data);
+        context.commit("SET_CHECKED_DATE", data);
+        context.dispatch("SAVE_TASKS");
+        context.dispatch("PUSH_NOTIFICATION", `Task #${data.index + 1} is ${data.value ? "checked" : "unchecked"}`);
     },
 
     TOGGLE_TASK_SELECTION: (context, index) => {

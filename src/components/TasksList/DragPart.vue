@@ -3,6 +3,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import { gtypes, atypes } from "@/store/types";
 export default {
     name: "DragPart",
     props: ["index"],
@@ -13,35 +15,37 @@ export default {
     },
 
     computed: {
+        ...mapGetters({
+            height: gtypes.CONTAINER_HEIGHT,
+            tasks: gtypes.TASKS,
+        }),
+
+        max() {
+            return this.tasks.length;
+        },
+
         top: {
             get() {
                 return this.$store.getters.CONTAINER_TOP;
             },
             set(newVal) {
-                this.$store.dispatch("SET_CONTAINER_TOP", newVal);
+                this.$store.dispatch(atypes.SET_CONTAINER_TOP, newVal);
             },
         },
 
-        height() {
-            return this.$store.getters.CONTAINER_HEIGHT;
-        },
-
-        max() {
-            return this.$store.getters.TASKS.length;
-        },
         draggedIndex: {
             get() {
                 return this.$store.getters.DRAGGED_INDEX;
             },
             set(newVal) {
-                this.$store.dispatch("SET_DRAGGED_INDEX", newVal);
+                this.$store.dispatch(atypes.SET_DRAGGED_INDEX, newVal);
             },
         },
     },
 
     methods: {
         orderChange(direction) {
-            this.$store.dispatch("CHANGE_ORDER", { index: this.index, direction });
+            this.$store.dispatch(atypes.CHANGE_ORDER, { index: this.index, direction });
         },
 
         start() {
@@ -82,3 +86,15 @@ export default {
     },
 };
 </script>
+<style lang="scss">
+.task {
+    &__dragger {
+        display: flex;
+        height: 100%;
+        font-size: 2rem;
+        padding: 0 0 0 3px;
+        justify-content: center;
+        align-items: center;
+    }
+}
+</style>
